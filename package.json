@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "obsidian-metal-archives-plugin",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Create notes about metal bands and albums from Metal Archives.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

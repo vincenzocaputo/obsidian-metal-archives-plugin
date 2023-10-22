@@ -1,0 +1,193 @@
+import {
+	request
+} from 'obsidian';
+
+import * as cheerio from 'cheerio';
+
+interface Song {
+	title: string,
+	length: string,
+	lyrics: string
+}
+
+interface Album {
+	name: string,
+	band: string,
+	type: string,
+	year: string,
+	date: string,
+	label: string,
+	format: string,
+	cover: string,
+	songs: Array<Song>
+}
+
+interface Artist {
+	name: string,
+	role: string
+}
+
+interface Band {
+	name: string,
+	status: string,
+	country: string,
+	formedYear: string,
+	yearsActive: string,
+	genre: Array<string>,
+	themes: Array<string>,
+	currentLabel: string,
+	description: string,
+	discography: Array<Album>,
+	members: Array<Artist>
+}
+
+export class MetalArchivesApi {
+	constructor() {
+		this.baseUrl = "https://www.metal-archives.com";
+		this.tags = [
+			'Black',
+			'Death',
+			'Doom',
+			'Stoner',
+			'Sludge',
+			'Electronic',
+			'Industrial',
+			'Experimental',
+			'Folk',
+			'Viking',
+			'Gothic',
+			'Grindcore',
+			'Groove',
+			'Heavy',
+			'Metalcore',
+			'Deathcore',
+			'Power',
+			'Progressive',
+			'Speed',
+			'Symphonic',
+			'Thrash'
+		];
+	}
+
+	async getBandInfo(url: string) {
+		let band;
+		const reponse = await request(url)
+							.then( (r) => {
+									const band_id = url.split('/').pop();
+									const $ = cheerio.load(r);
+
+									let tagsList = Array();
+									const genres = $('#band_stats').find('dd').eq(4).text().toLowerCase();
+									for (const tag of this.tags) {
+										if (genres.includes(tag.toLowerCase())) {
+											tagsList.push(tag);
+										}
+									}
+
+									let membersList = Array();
+									const lineupTable = $('#band_tab_members_current table.lineupTable tbody tr.lineupRow');
+									for (const memberRow of lineupTable) {
+										membersList.push({
+											memberName: $(memberRow).find('td a').eq(0).text(),
+											memberRole: $(memberRow).find('td').eq(1).text()
+										});
+					  
+									}
+
+					
+									band = {
+										id: band_id,
+										name: $('#band_info>h1.band_name>a').text(),
+										status: $('#band_stats').find('dd').eq(2).text(),
+										country: $('#band_stats').find('dd').eq(0).text(),
+										formedYear: $('#band_stats').find('dd').eq(3).text(),
+										yearsActive: $('#band_stats').find('dd').eq(7).text(),
+										genre: $('#band_stats').find('dd').eq(4).text(),
+										themes: $('#band_stats').find('dd').eq(5).text(),
+										currentLabel: $('#band_stats').find('dd').eq(6).text(),
+										description: "",
+										discography: Array(),
+										members: membersList,
+										tags: tagsList
+									}
+								});
+		return band;
+	}
+
+	async getBandDescription(band) {
+		const url = `${this.baseUrl}/band/read-more/id/${band.id}`;
+		const reponse = await request(url)
+							.then((r) => {
+									const $ = cheerio.load(r);
+									band.description = $('body').text();
+							});
+		return band;
+
+	}
+
+	async getBandDiscography(band) {
+		const url = `${this.baseUrl}/band/discography/id/${band.id}/tab/all`;
+		const reponse = await request(url)
+							.then((r) => {
+								const $ = cheerio.load(r);
+								const discographyList = $('table.discog tbody tr');
+								for (const discRow of discographyList) {
+									const discType = $(discRow).find('td').eq(1).text();
+									const discUrl = $(discRow).find('td a').eq(0).attr('href');
+									let songs = Array();
+									band.discography.push({
+										discName: $(discRow).find('td a').eq(0).text(),
+										discType: discType,
+										discYear: $(discRow).find('td').eq(2).text(),
+										discUrl: $(discRow).find('td a').eq(0).attr('href'),
+										songs: Array()
+									});
+								}
+								return band
+							});
+		return band;
+	}
+
+	async getAlbum(refUrl: string) {
+		return await request(refUrl)
+								.then((r) => {
+									let album: Album;
+									const $ = cheerio.load(r);
+									const albumInfo = $('#album_info');
+									album = {
+										name: $('h1.album_name a').text(),
+										band: $('h2.band_name a').text().trim(),
+										date: $(albumInfo).find('dd').eq(1).text(),
+										type: $(albumInfo).find('dd').eq(0).text(),
+										label: $(albumInfo).find('dd').eq(3).text(),
+										format: $(albumInfo).find('dd').eq(4).text(),
+										cover: $('#cover img').attr('src'),
+										songs: Array()
+									}
+									const songsListEven = $('.table_lyrics tbody tr').filter((i,e) => {
+										return $(e).attr('class') && ($(e).attr('class').includes('even') || $(e).attr('class').includes('odd'));
+									});
+									for (const songRow of songsListEven) { 
+										const lyricsHyper = $(songRow).find('td').eq(3).find('a');
+										if (lyricsHyper.length) {
+											const songId = lyricsHyper.attr('href').substring(1);
+											album.songs.push({
+												songId: songId,
+												title: $(songRow).find('td').eq(1).text().trim(),
+												length: $(songRow).find('td').eq(2).text().trim(),
+												lyrics: "" 
+											});
+										} else {
+											album.songs.push({
+												songId: -1,
+												title: $(songRow).find('td').eq(1).text().trim(),
+												length: $(songRow).find('td').eq(2).text().trim(),
+												lyrics: "" 
+											});
+										}
+										
+									}
+									return album;
+								});
+	}
+}
