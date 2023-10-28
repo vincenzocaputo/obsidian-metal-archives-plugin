@@ -1,11 +1,10 @@
 {
-	"id": "metal-archives-plugin",
+	"id": "metal-archives",
 	"name": "Metal Archives Plugin (Unofficial)",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Create notes about metal bands and album from Metal Archives",
 	"author": "Vincenzo Caputo",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"authorUrl": "https://github.com/vincenzocaputo",
 	"isDesktopOnly": false
 }

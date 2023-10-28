@@ -9,19 +9,19 @@ import {
 
 import {
 	BandNameSuggestModal
-} from 'src/dialogs/BandNameSuggestModal';
+} from './dialogs/BandNameSuggestModal';
 
 import {
 	AlbumTitleSuggestModal
-} from 'src/dialogs/AlbumTitleSuggestModal';
+} from './dialogs/AlbumTitleSuggestModal';
 
 import {
 	MetalArchivesApi
-} from 'src/api/MetalArchivesApi';
+} from './api/MetalArchivesApi';
 
 import {
 	MetalArchivesSettingTab
-} from 'settings/MetalArchivesSettingTab';
+} from './settings/MetalArchivesSettingTab';
 
 interface MetalArchivesPluginSettings {
   bandsPathLocation: string;
