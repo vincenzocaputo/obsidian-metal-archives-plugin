@@ -52,6 +52,7 @@ export default class MetalArchivesPlugin extends Plugin {
 		this.maApi = new MetalArchivesApi();
 		const vault = this.app.vault;
 		this.addCommand({
+			id: 'metal-archives',
 			name: "Pick a band and create a note",
 			callback: () => {
 				new BandNameSuggestModal(this.app, (band) => {
@@ -68,6 +69,7 @@ export default class MetalArchivesPlugin extends Plugin {
 			}
 		});
 		this.addCommand({
+			id: 'metal-archives',
 			name: "Pick an album and create a note",
 			callback: () => {
 				new AlbumTitleSuggestModal(this.app, (album) => {
@@ -86,17 +88,18 @@ export default class MetalArchivesPlugin extends Plugin {
 
 		const albumsDir = `${vaultBasePath}/${this.settings.albumsPathLocation}/${album.band}`;
 	
-		const fs = require("fs");
-		if (!fs.existsSync(albumsDir)) {
-			fs.mkdirSync(albumsDir, { recursive: true });
-		} 
-		const noteFilename = `${this.settings.albumsPathLocation}/${album.band}/${album.name}.md`;
-		
-		let songsTable = ``;
-		for (const song of album.songs) {
-			songsTable += `|**${song.title}**|${song.length}|\n`;
-		}
-		const body = `---
+		this.app.vault.adapter.exists(albumsDir).then( (r) => {
+			return this.app.vault.adapter.mkdir(this.settings.albumsPathLocation.toString());
+		}).then((r) => {
+			return this.app.vault.adapter.mkdir(`${this.settings.albumsPathLocation}/${album.band}`);
+		}).then((r) => {
+			const noteFilename = `${this.settings.albumsPathLocation}/${album.band}/${album.name}.md`;
+			
+			let songsTable = ``;
+			for (const song of album.songs) {
+				songsTable += `|**${song.title}**|${song.length}|\n`;
+			}
+			const body = `---
 band: "[[${album.band}]]"
 release_date: ${album.date}
 type: ${album.type}
@@ -112,8 +115,10 @@ format: ${album.format}
 ${songsTable}
 
 `
-		const vault = this.app.vault;
-		const newNote = vault.create(noteFilename, body);
+			const vault = this.app.vault;
+			const newNote = vault.create(noteFilename, body);
+
+		}); 
 
 	}
 
@@ -121,31 +126,31 @@ ${songsTable}
 		const vaultBasePath = this.app.vault.adapter.basePath;
 	
 		const bandsDir = `${vaultBasePath}/${this.settings.bandsPathLocation}`;
-		const fs = require("fs");
-		if (!fs.existsSync(bandsDir)) {
-			fs.mkdirSync(bandsDir, { recursive: true });
-		}
 
-		const noteFilename = `${this.settings.bandsPathLocation}/${band.name}.md`;
+		this.app.vault.adapter.exists(bandsDir).then( (r) => {
+			return this.app.vault.adapter.mkdir(this.settings.bandsPathLocation.toString());
+		}).then((r) => {
 
-		let tags = ``;
-		for (const tag of band.tags) {
-			tags += `- "#${tag}"\n`;
-		}
-		let membersTable = ``;
-		for (const member of band.members) {
-			membersTable += `|${member.memberName}|${member.memberRole.replace(/(\r\n|\n|\r)/gm, "")}|\n`;
-		}
+			const noteFilename = `${this.settings.bandsPathLocation}/${band.name}.md`;
 
-		let discogTable = ``;
-		for (const disc of band.discography) {
-			if ("Full-length" === disc.discType) {
-				discogTable += `|**${disc.discName}**|${disc.discType}|${disc.discYear}|\n`;
-			} else {
-				discogTable += `|${disc.discName}|${disc.discType}|${disc.discYear}|\n`;
+			let tags = ``;
+			for (const tag of band.tags) {
+				tags += `- "#${tag}"\n`;
 			}
-		}
-		const body = `---
+			let membersTable = ``;
+			for (const member of band.members) {
+				membersTable += `|${member.memberName}|${member.memberRole.replace(/(\r\n|\n|\r)/gm, "")}|\n`;
+			}
+
+			let discogTable = ``;
+			for (const disc of band.discography) {
+				if ("Full-length" === disc.discType) {
+					discogTable += `|**${disc.discName}**|${disc.discType}|${disc.discYear}|\n`;
+				} else {
+					discogTable += `|${disc.discName}|${disc.discType}|${disc.discYear}|\n`;
+				}
+			}
+			const body = `---
 Country: ${band.country}
 Status: ${band.status}
 Formed in: "${band.formedYear}"
@@ -166,8 +171,9 @@ ${membersTable}
 |---|---|---|
 ${discogTable}
 `
-		const vault = this.app.vault;
-		const newNote = vault.create(noteFilename, body);
+			const vault = this.app.vault;
+			const newNote = vault.create(noteFilename, body);
+		});
 
 	}
 
