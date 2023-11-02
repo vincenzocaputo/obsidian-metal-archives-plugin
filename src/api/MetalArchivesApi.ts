@@ -85,15 +85,15 @@ export class MetalArchivesApi {
 									}
 
 									let membersList = Array();
-									const lineupTable = $('#band_tab_members_current table.lineupTable tbody tr.lineupRow');
-									for (const memberRow of lineupTable) {
+									console.log( $('#band_tab_members_current tr.lineupRow'));
+									$('#band_tab_members_current tr.lineupRow').each(function(i, item) {
+										console.log(item);
 										membersList.push({
-											memberName: $(memberRow).find('td a').eq(0).text(),
-											memberRole: $(memberRow).find('td').eq(1).text()
+											memberName: $(item).find('td a').eq(0).text(),
+											memberRole: $(item).find('td').eq(1).text()
 										});
 					  
-									}
-
+									});
 					
 									band = {
 										id: band_id,
@@ -130,19 +130,18 @@ export class MetalArchivesApi {
 		const reponse = await request(url)
 							.then((r) => {
 								const $ = cheerio.load(r);
-								const discographyList = $('table.discog tbody tr');
-								for (const discRow of discographyList) {
-									const discType = $(discRow).find('td').eq(1).text();
-									const discUrl = $(discRow).find('td a').eq(0).attr('href');
+								const discographyList = $('table.discog tbody tr').each( function(i, disc) {
+									const discType = $(disc).find('td').eq(1).text();
+									const discUrl = $(disc).find('td a').eq(0).attr('href');
 									let songs = Array();
 									band.discography.push({
-										discName: $(discRow).find('td a').eq(0).text(),
+										discName: $(disc).find('td a').eq(0).text(),
 										discType: discType,
-										discYear: $(discRow).find('td').eq(2).text(),
-										discUrl: $(discRow).find('td a').eq(0).attr('href'),
+										discYear: $(disc).find('td').eq(2).text(),
+										discUrl: $(disc).find('td a').eq(0).attr('href'),
 										songs: Array()
 									});
-								}
+								});
 								return band
 							});
 		return band;
