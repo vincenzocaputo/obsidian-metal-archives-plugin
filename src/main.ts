@@ -52,7 +52,7 @@ export default class MetalArchivesPlugin extends Plugin {
 		this.maApi = new MetalArchivesApi();
 		const vault = this.app.vault;
 		this.addCommand({
-			id: 'metal-archives',
+			id: "create-band-note",
 			name: "Pick a band and create a note",
 			callback: () => {
 				new BandNameSuggestModal(this.app, (band) => {
@@ -69,7 +69,7 @@ export default class MetalArchivesPlugin extends Plugin {
 			}
 		});
 		this.addCommand({
-			id: 'metal-archives',
+			id: "create-album-note",
 			name: "Pick an album and create a note",
 			callback: () => {
 				new AlbumTitleSuggestModal(this.app, (album) => {
