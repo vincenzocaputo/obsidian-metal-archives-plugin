@@ -164,29 +164,16 @@ export class MetalArchivesApi {
 										cover: $('#cover img').attr('src'),
 										songs: Array()
 									}
-									const songsListEven = $('.table_lyrics tbody tr').filter((i,e) => {
+									const songsList = $('.table_lyrics tbody tr').filter((i,e) => {
 										return $(e).attr('class') && ($(e).attr('class').includes('even') || $(e).attr('class').includes('odd'));
-									});
-									for (const songRow of songsListEven) { 
-										const lyricsHyper = $(songRow).find('td').eq(3).find('a');
-										if (lyricsHyper.length) {
-											const songId = lyricsHyper.attr('href').substring(1);
-											album.songs.push({
-												songId: songId,
-												title: $(songRow).find('td').eq(1).text().trim(),
-												length: $(songRow).find('td').eq(2).text().trim(),
-												lyrics: "" 
-											});
-										} else {
+									}).each(function(i, item) {
 											album.songs.push({
 												songId: -1,
-												title: $(songRow).find('td').eq(1).text().trim(),
-												length: $(songRow).find('td').eq(2).text().trim(),
+												title: $(item).find('td').eq(1).text().trim(),
+												length: $(item).find('td').eq(2).text().trim(),
 												lyrics: "" 
 											});
-										}
-										
-									}
+									});
 									return album;
 								});
 	}
