@@ -5,6 +5,7 @@ import {
 	Vault,
 	App,
 	requests,
+	FileManager
 } from 'obsidian';
 
 import {
@@ -32,6 +33,7 @@ const DEFAULT_SETTINGS: Partial<MetalArchivesPluginSettings> = {
   bandsPathLocation: "bands",
   albumsPathLocation: "albums"
 };
+
 
 export default class MetalArchivesPlugin extends Plugin {
 	settings: MetalArchivesPluginSettings;
@@ -79,7 +81,31 @@ export default class MetalArchivesPlugin extends Plugin {
 					});
 				}).open()
 			}
-		})
+		});
+
+		this.registerDomEvent(document, "click", (evt: MouseEvent) => {
+			const target = evt.target as HTMLElement;
+			if (target.matches("a.internal-link.is-unresolved")) {
+				const activeFile = this.app.workspace.getActiveFile();
+				this.app.fileManager.processFrontMatter(activeFile, (frontmatter) => {
+					const url = frontmatter["Reference"] ?? "";
+					if (url && url.includes("https://www.metal-archives.com/bands/")) {
+						const band = this.maApi.getBandInfo(url).then( (b) => {
+							this.maApi.getBandDiscography(b).then( (b) => {
+								b.discography.forEach( (d) => {
+									if (d.discName === target.textContent) {
+										const album = this.maApi.getAlbum(d.discUrl);
+										album.then( (a) => {
+											this.renderAlbumNote(a);
+										});
+									}
+								});
+							});
+						});
+					}
+				});
+			}
+		});
 	}
 
 
@@ -105,6 +131,7 @@ release_date: ${album.date}
 type: ${album.type}
 label: ${album.label}
 format: ${album.format}
+reference: ${album.url}
 ---
 
 ![](${album.cover})
@@ -116,7 +143,14 @@ ${songsTable}
 
 `
 			const vault = this.app.vault;
-			const newNote = vault.create(noteFilename, body);
+			this.app.vault.adapter.exists(noteFilename).then((r) => {
+				if (r) {
+					const file = vault.getFileByPath(noteFilename);
+					const newNote = vault.modify(file, body);
+				} else {
+					const newNote = vault.create(noteFilename, body);
+				}
+			});
 
 		}); 
 
@@ -126,6 +160,7 @@ ${songsTable}
 		const vaultBasePath = this.app.vault.adapter.basePath;
 	
 		const bandsDir = `${vaultBasePath}/${this.settings.bandsPathLocation}`;
+		const albumsDir = `${this.settings.albumsPathLocation}/${band.name}`;
 
 		this.app.vault.adapter.exists(bandsDir).then( (r) => {
 			return this.app.vault.adapter.mkdir(this.settings.bandsPathLocation.toString());
@@ -144,10 +179,11 @@ ${songsTable}
 
 			let discogTable = ``;
 			for (const disc of band.discography) {
+				const albumDir = `${albumsDir}/${disc.discName}`
 				if ("Full-length" === disc.discType) {
-					discogTable += `|**${disc.discName}**|${disc.discType}|${disc.discYear}|\n`;
+					discogTable += `|**[[${albumDir}\\|${disc.discName}]]**|${disc.discType}|${disc.discYear}|\n`;
 				} else {
-					discogTable += `|${disc.discName}|${disc.discType}|${disc.discYear}|\n`;
+					discogTable += `|[[${disc.discName}]]|${disc.discType}|${disc.discYear}|\n`;
 				}
 			}
 			const body = `---
@@ -158,6 +194,7 @@ YearsActive: ${band.yearsActive.replace(/(\r\n|\n|\r)/gm, "")}
 Genre: ${band.genre}
 Themes: ${band.themes}
 Current Label: ${band.currentLabel}
+Reference: ${band.url}
 tags: 
 ${tags}
 ---
@@ -172,7 +209,15 @@ ${membersTable}
 ${discogTable}
 `
 			const vault = this.app.vault;
-			const newNote = vault.create(noteFilename, body);
+			this.app.vault.adapter.exists(noteFilename).then((r) => {
+				if (r) {
+					const file = vault.getFileByPath(noteFilename);
+					const newNote = vault.modify(file, body);
+				} else {
+					const newNote = vault.create(noteFilename, body);
+				}
+			});
+			
 		});
 
 	}

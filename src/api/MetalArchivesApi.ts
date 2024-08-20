@@ -38,7 +38,8 @@ interface Band {
 	currentLabel: string,
 	description: string,
 	discography: Array<Album>,
-	members: Array<Artist>
+	members: Array<Artist>,
+	url: string
 }
 
 export class MetalArchivesApi {
@@ -92,9 +93,7 @@ export class MetalArchivesApi {
 											memberName: $(item).find('td a').eq(0).text(),
 											memberRole: $(item).find('td').eq(1).text()
 										});
-					  
 									});
-					
 									band = {
 										id: band_id,
 										name: $('#band_info>h1.band_name>a').text(),
@@ -108,7 +107,8 @@ export class MetalArchivesApi {
 										description: "",
 										discography: Array(),
 										members: membersList,
-										tags: tagsList
+										tags: tagsList,
+										url: url
 									}
 								});
 		return band;
@@ -161,7 +161,8 @@ export class MetalArchivesApi {
 										label: $(albumInfo).find('dd').eq(3).text(),
 										format: $(albumInfo).find('dd').eq(4).text(),
 										cover: $('#cover img').attr('src'),
-										songs: Array()
+										songs: Array(),
+										url: refUrl
 									}
 									const songsList = $('.table_lyrics tbody tr').filter((i,e) => {
 										return $(e).attr('class') && ($(e).attr('class').includes('even') || $(e).attr('class').includes('odd'));
