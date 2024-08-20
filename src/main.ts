@@ -134,7 +134,7 @@ format: ${album.format}
 reference: ${album.url}
 ---
 
-![](${album.cover})
+![cover|400x400](${album.cover})
 
 ## Songs
 |Title|Length|
