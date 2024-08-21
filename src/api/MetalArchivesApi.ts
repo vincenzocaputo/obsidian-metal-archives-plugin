@@ -38,7 +38,8 @@ interface Band {
 	currentLabel: string,
 	description: string,
 	discography: Array<Album>,
-	members: Array<Artist>
+	members: Array<Artist>,
+	url: string
 }
 
 export class MetalArchivesApi {
@@ -69,7 +70,7 @@ export class MetalArchivesApi {
 		];
 	}
 
-	async getBandInfo(url: string) {
+	async getBandInfo(url: string, fullName: string) {
 		let band;
 		const reponse = await request(url)
 							.then( (r) => {
@@ -85,19 +86,16 @@ export class MetalArchivesApi {
 									}
 
 									let membersList = Array();
-									console.log( $('#band_tab_members_current tr.lineupRow'));
 									$('#band_tab_members_current tr.lineupRow').each(function(i, item) {
-										console.log(item);
 										membersList.push({
 											memberName: $(item).find('td a').eq(0).text(),
 											memberRole: $(item).find('td').eq(1).text()
 										});
-					  
 									});
-					
 									band = {
 										id: band_id,
 										name: $('#band_info>h1.band_name>a').text(),
+										fullName: fullName,
 										status: $('#band_stats').find('dd').eq(2).text(),
 										country: $('#band_stats').find('dd').eq(0).text(),
 										formedYear: $('#band_stats').find('dd').eq(3).text(),
@@ -108,7 +106,8 @@ export class MetalArchivesApi {
 										description: "",
 										discography: Array(),
 										members: membersList,
-										tags: tagsList
+										tags: tagsList,
+										url: url
 									}
 								});
 		return band;
@@ -125,8 +124,8 @@ export class MetalArchivesApi {
 
 	}
 
-	async getBandDiscography(band) {
-		const url = `${this.baseUrl}/band/discography/id/${band.id}/tab/all`;
+	async getBandDiscography(band, type) {
+		const url = `${this.baseUrl}/band/discography/id/${band.id}/tab/${type}`;
 		const reponse = await request(url)
 							.then((r) => {
 								const $ = cheerio.load(r);
@@ -161,7 +160,8 @@ export class MetalArchivesApi {
 										label: $(albumInfo).find('dd').eq(3).text(),
 										format: $(albumInfo).find('dd').eq(4).text(),
 										cover: $('#cover img').attr('src'),
-										songs: Array()
+										songs: Array(),
+										url: refUrl
 									}
 									const songsList = $('.table_lyrics tbody tr').filter((i,e) => {
 										return $(e).attr('class') && ($(e).attr('class').includes('even') || $(e).attr('class').includes('odd'));
