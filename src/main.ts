@@ -65,7 +65,7 @@ export default class MetalArchivesPlugin extends Plugin {
 				new BandNameSuggestModal(this.app, (band) => {
 					const loadingNotice = new Notice("Loading Note...", 0);
 					// I need to replace spaces with underscores
-					band = this.maApi.getBandInfo(band.refUrl);
+					band = this.maApi.getBandInfo(band.refUrl, band.name);
 					band.then((b)=>{
 						return this.maApi.getBandDescription(b);
 					}).then((b)=>{

@@ -70,7 +70,7 @@ export class MetalArchivesApi {
 		];
 	}
 
-	async getBandInfo(url: string) {
+	async getBandInfo(url: string, fullName: string) {
 		let band;
 		const reponse = await request(url)
 							.then( (r) => {
@@ -95,6 +95,7 @@ export class MetalArchivesApi {
 									band = {
 										id: band_id,
 										name: $('#band_info>h1.band_name>a').text(),
+										fullName: fullName,
 										status: $('#band_stats').find('dd').eq(2).text(),
 										country: $('#band_stats').find('dd').eq(0).text(),
 										formedYear: $('#band_stats').find('dd').eq(3).text(),
