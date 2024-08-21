@@ -5,6 +5,7 @@ import {
 	Vault,
 	App,
 	requests,
+	Notice,
 	FileManager
 } from 'obsidian';
 
@@ -58,6 +59,7 @@ export default class MetalArchivesPlugin extends Plugin {
 			name: "Pick a band and create a note",
 			callback: () => {
 				new BandNameSuggestModal(this.app, (band) => {
+					const loadingNotice = new Notice("Loading Note...", 0);
 					// I need to replace spaces with underscores
 					band = this.maApi.getBandInfo(band.refUrl);
 					band.then((b)=>{
@@ -66,6 +68,7 @@ export default class MetalArchivesPlugin extends Plugin {
 						return this.maApi.getBandDiscography(b);
 					}).then((b)=>{
 						this.renderBandNote(b);
+						loadingNotice.hide();
 					});
 				}).open()
 			}
@@ -75,9 +78,11 @@ export default class MetalArchivesPlugin extends Plugin {
 			name: "Pick an album and create a note",
 			callback: () => {
 				new AlbumTitleSuggestModal(this.app, (album) => {
+					const loadingNotice = new Notice("Loading Note...", 0);
 					album = this.maApi.getAlbum(album.refUrl);
 					album.then((a) => {
 						this.renderAlbumNote(a);
+						loadingNotice.hide()
 					});
 				}).open()
 			}
@@ -90,6 +95,7 @@ export default class MetalArchivesPlugin extends Plugin {
 				this.app.fileManager.processFrontMatter(activeFile, (frontmatter) => {
 					const url = frontmatter["Reference"] ?? "";
 					if (url && url.includes("https://www.metal-archives.com/bands/")) {
+						const loadingNotice = new Notice("Loading Note...", 0);
 						const band = this.maApi.getBandInfo(url).then( (b) => {
 							this.maApi.getBandDiscography(b).then( (b) => {
 								b.discography.forEach( (d) => {
@@ -97,6 +103,7 @@ export default class MetalArchivesPlugin extends Plugin {
 										const album = this.maApi.getAlbum(d.discUrl);
 										album.then( (a) => {
 											this.renderAlbumNote(a);
+											loadingNotice.hide();
 										});
 									}
 								});
