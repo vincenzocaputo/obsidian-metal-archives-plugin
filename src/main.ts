@@ -136,7 +136,7 @@ export default class MetalArchivesPlugin extends Plugin {
 					if (url && url.includes("https://www.metal-archives.com/bands/")) {
 						const loadingNotice = new Notice("Loading Note...", 0);
 						const band = this.maApi.getBandInfo(url).then( (b) => {
-							this.maApi.getBandDiscography(b, "all").then( (b) => {
+							this.maApi.getBandDiscography(b, "main").then( (b) => {
 								b.discography.forEach( (d) => {
 									if (d.discName === target.textContent) {
 										const album = this.maApi.getAlbum(d.discUrl);
