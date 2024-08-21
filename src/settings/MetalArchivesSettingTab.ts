@@ -48,7 +48,20 @@ export class MetalArchivesSettingTab extends PluginSettingTab {
 		  dropdown.setValue(this.plugin.settings.albumsPathLocation);
 	  });
 
-	containerEl.createEl("h2", { text: "Bands" })
+	containerEl.createEl("h2", { text: "Band Discopgraphy" })
+
+	new Setting(containerEl)
+		.setName("Allow band notes update")
+		.setDesc("Automatically update a band note whenever you select a band already present in your vault")
+		.addToggle(toggle => {
+			toggle.setValue(this.plugin.settings.bandUpdate);
+			toggle.onChange(async (value) => {
+				this.plugin.settings.bandUpdate = value;
+				await this.plugin.saveSettings();
+			});
+	  });
+
+	containerEl.createEl("h2", { text: "Band Discopgraphy" })
 	
 	new Setting(containerEl)
 		.setName("Download main discography")

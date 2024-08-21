@@ -33,6 +33,7 @@ interface MetalArchivesPluginSettings {
 const DEFAULT_SETTINGS: Partial<MetalArchivesPluginSettings> = {
   bandsPathLocation: "bands",
   albumsPathLocation: "albums",
+  bandUpdate: false,
   mainDiscs: true,
   liveDiscs: false,
   demoDiscs: false,
@@ -50,6 +51,18 @@ export default class MetalArchivesPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+
+	async showErrorNotice(msg) {
+		const notice = new Notice(`Error: ${msg}`, 5000);
+		notice.noticeEl.style.backgroundColor = "#FF0000";
+		notice.noticeEl.style.opacity = "80%";
+	}
+
+	async showOkNotice(msg) {
+		const notice = new Notice(msg, 5000);
+		notice.noticeEl.style.backgroundColor = "#3DD164";
+		notice.noticeEl.style.opacity = "80%";
 	}
 
 	async onload() {
@@ -180,8 +193,10 @@ ${songsTable}
 				if (r) {
 					const file = vault.getFileByPath(noteFilename);
 					const newNote = vault.modify(file, body);
+					this.showOkNotice("Note updated");
 				} else {
 					const newNote = vault.create(noteFilename, body);
+					this.showOkNotice("Note created");
 				}
 			});
 
@@ -244,10 +259,16 @@ ${discogTable}
 			const vault = this.app.vault;
 			this.app.vault.adapter.exists(noteFilename).then((r) => {
 				if (r) {
-					const file = vault.getFileByPath(noteFilename);
-					const newNote = vault.modify(file, body);
+					if (this.settings.bandUpdate) {
+						const file = vault.getFileByPath(noteFilename);
+						const newNote = vault.modify(file, body);
+						this.showOkNotice("Note updated");
+					} else {
+						this.showErrorNotice("The band is already present in your vault");
+					}
 				} else {
 					const newNote = vault.create(noteFilename, body);
+					this.showOkNotice("Note created");
 				}
 			});
 			
