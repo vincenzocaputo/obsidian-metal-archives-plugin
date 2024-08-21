@@ -123,8 +123,8 @@ export class MetalArchivesApi {
 
 	}
 
-	async getBandDiscography(band) {
-		const url = `${this.baseUrl}/band/discography/id/${band.id}/tab/all`;
+	async getBandDiscography(band, type) {
+		const url = `${this.baseUrl}/band/discography/id/${band.id}/tab/${type}`;
 		const reponse = await request(url)
 							.then((r) => {
 								const $ = cheerio.load(r);

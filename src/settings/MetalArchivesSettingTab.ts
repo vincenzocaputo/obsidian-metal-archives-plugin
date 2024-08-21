@@ -13,11 +13,10 @@ export class MetalArchivesSettingTab extends PluginSettingTab {
     let { containerEl } = this;
 
     containerEl.empty();
-
-    new Setting(containerEl)
-      .setName("Band notes path")
-      .setDesc("Choose the folder where band notes will be saved")
-	  .addDropdown(dropdown => {
+	new Setting(containerEl)
+		.setName("Band notes path")
+		.setDesc("Choose the folder where band notes will be saved")
+		.addDropdown(dropdown => {
 		  const folders = app.vault.getAllLoadedFiles().filter(i => i.children).map(folder => folder.path);
 		  for (const folder of folders) {
 			  dropdown.addOption(folder, folder);
@@ -31,11 +30,10 @@ export class MetalArchivesSettingTab extends PluginSettingTab {
 		  });
 		  dropdown.setValue(this.plugin.settings.bandsPathLocation);
 	  });
-
-    new Setting(containerEl)
-      .setName("Album notes path")
-      .setDesc("Choose the folder where album notes will be saved")
-	  .addDropdown(dropdown => {
+	new Setting(containerEl)
+		.setName("Album notes path")
+		.setDesc("Choose the folder where album notes will be saved")
+		.addDropdown(dropdown => {
 		  const folders = app.vault.getAllLoadedFiles().filter(i => i.children).map(folder => folder.path);
 		  for (const folder of folders) {
 			  dropdown.addOption(folder, folder);
@@ -49,5 +47,48 @@ export class MetalArchivesSettingTab extends PluginSettingTab {
 		  });
 		  dropdown.setValue(this.plugin.settings.albumsPathLocation);
 	  });
+
+	containerEl.createEl("h2", { text: "Bands" })
+	
+	new Setting(containerEl)
+		.setName("Download main discography")
+		.setDesc("The discography section in the band notes will contain full-length albums")
+		.addToggle(toggle => {
+			toggle.setValue(this.plugin.settings.mainDiscs);
+			toggle.onChange(async (value) => {
+				this.plugin.settings.mainDiscs = value;
+				await this.plugin.saveSettings();
+			});
+		});
+	new Setting(containerEl)
+		.setName("Download lives")
+		.setDesc("The discography section in the band notes will contain live albums")
+		.addToggle(toggle => {
+			toggle.setValue(this.plugin.settings.liveDiscs);
+			toggle.onChange(async (value) => {
+				this.plugin.settings.liveDiscs = value;
+				await this.plugin.saveSettings();
+			});
+		});
+	new Setting(containerEl)
+		.setName("Download demos")
+		.setDesc("The discography section in the band notes will contain demo albums")
+		.addToggle(toggle => {
+			toggle.setValue(this.plugin.settings.demoDiscs);
+			toggle.onChange(async (value) => {
+				this.plugin.settings.demoDiscs = value;
+				await this.plugin.saveSettings();
+			});
+		});
+	new Setting(containerEl)
+		.setName("Download misc.")
+		.setDesc("The discography section in the band notes will contain other type of albums (EPs, Singles, ...)")
+		.addToggle(toggle => {
+			toggle.setValue(this.plugin.settings.miscDiscs);
+			toggle.onChange(async (value) => {
+				this.plugin.settings.miscDiscs = value;
+				await this.plugin.saveSettings();
+			});
+		});
   }
 }

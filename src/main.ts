@@ -32,7 +32,11 @@ interface MetalArchivesPluginSettings {
 
 const DEFAULT_SETTINGS: Partial<MetalArchivesPluginSettings> = {
   bandsPathLocation: "bands",
-  albumsPathLocation: "albums"
+  albumsPathLocation: "albums",
+  mainDiscs: true,
+  liveDiscs: false,
+  demoDiscs: false,
+  miscDiscs: false
 };
 
 
@@ -65,7 +69,29 @@ export default class MetalArchivesPlugin extends Plugin {
 					band.then((b)=>{
 						return this.maApi.getBandDescription(b);
 					}).then((b)=>{
-						return this.maApi.getBandDiscography(b);
+						if(this.settings.mainDiscs) {
+							return this.maApi.getBandDiscography(b, 'main');
+						} else {
+							return b;
+						}
+					}).then((b)=>{
+						if(this.settings.liveDiscs) {
+							return this.maApi.getBandDiscography(b, 'lives');
+						} else {
+							return b;
+						}
+					}).then((b)=>{
+						if(this.settings.demoDiscs) {
+							return this.maApi.getBandDiscography(b, 'demos');
+						} else {
+							return b;
+						}
+					}).then((b)=>{
+						if(this.settings.miscDiscs) {
+							return this.maApi.getBandDiscography(b, 'misc');
+						} else {
+							return b;
+						}
 					}).then((b)=>{
 						this.renderBandNote(b);
 						loadingNotice.hide();
@@ -97,7 +123,7 @@ export default class MetalArchivesPlugin extends Plugin {
 					if (url && url.includes("https://www.metal-archives.com/bands/")) {
 						const loadingNotice = new Notice("Loading Note...", 0);
 						const band = this.maApi.getBandInfo(url).then( (b) => {
-							this.maApi.getBandDiscography(b).then( (b) => {
+							this.maApi.getBandDiscography(b, "all").then( (b) => {
 								b.discography.forEach( (d) => {
 									if (d.discName === target.textContent) {
 										const album = this.maApi.getAlbum(d.discUrl);
