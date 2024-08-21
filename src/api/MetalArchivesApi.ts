@@ -86,9 +86,7 @@ export class MetalArchivesApi {
 									}
 
 									let membersList = Array();
-									console.log( $('#band_tab_members_current tr.lineupRow'));
 									$('#band_tab_members_current tr.lineupRow').each(function(i, item) {
-										console.log(item);
 										membersList.push({
 											memberName: $(item).find('td a').eq(0).text(),
 											memberRole: $(item).find('td').eq(1).text()
