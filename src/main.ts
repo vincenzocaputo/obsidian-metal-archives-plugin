@@ -251,6 +251,8 @@ Reference: ${band.url}
 tags: 
 ${tags}
 ---
+# ${band.name}
+
 ${band.description.replace(/Compilation (a|A)ppearances:.*(?:\n.*)*/g, "")}
 ## Members
 | | |
