@@ -180,6 +180,8 @@ format: ${album.format}
 reference: ${album.url}
 ---
 
+# ${album.name}
+
 ![cover|400x400](${album.cover})
 
 ## Songs
