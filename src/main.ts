@@ -232,13 +232,16 @@ ${songsTable}
 
 			let discogTable = ``;
 			for (const disc of band.discography) {
-				const albumDir = `${albumsDir}/${disc.discName.replace(/[:\/]/g, " ")}`
-				if ("Full-length" === disc.discType) {
-					discogTable += `|**[[${albumDir}\\|${disc.discName}]]**|${disc.discType}|${disc.discYear}|\n`;
-				} else {
-					discogTable += `|[[${disc.discName}]]|${disc.discType}|${disc.discYear}|\n`;
+				if (disc.discName.length > 0) {
+					const albumDir = `${albumsDir}/${disc.discName.replace(/[:\/]/g, " ")}`
+					if ("Full-length" === disc.discType) {
+						discogTable += `|**[[${albumDir}\\|${disc.discName}]]**|${disc.discType}|${disc.discYear}|\n`;
+					} else {
+						discogTable += `|[[${disc.discName}]]|${disc.discType}|${disc.discYear}|\n`;
+					}
 				}
 			}
+
 			const body = `---
 Country: ${band.country}
 Status: ${band.status}
