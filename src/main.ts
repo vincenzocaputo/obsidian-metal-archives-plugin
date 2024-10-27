@@ -255,7 +255,7 @@ ${tags}
 
 ${band.description.replace(/Compilation (a|A)ppearances:.*(?:\n.*)*/g, "")}
 ## Members
-| | |
+|Member name|Instrument|
 |---|---|
 ${membersTable}
 ## Discography
