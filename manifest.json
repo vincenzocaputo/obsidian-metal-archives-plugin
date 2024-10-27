@@ -1,7 +1,7 @@
 {
 	"id": "metal-archives",
 	"name": "Metal Archives (Unofficial)",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"minAppVersion": "0.15.0",
 	"description": "Create notes about metal bands and album from Metal Archives",
 	"author": "Vincenzo Caputo",
