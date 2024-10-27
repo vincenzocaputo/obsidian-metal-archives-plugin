@@ -158,14 +158,16 @@ export default class MetalArchivesPlugin extends Plugin {
 	async renderAlbumNote(album: Album) {
 		const vaultBasePath = this.app.vault.adapter.basePath;
 
-		const albumsDir = `${vaultBasePath}/${this.settings.albumsPathLocation}/${album.band}`;
+		const bandFilename = album.band.replace(/[:\/]/g, " ");
+		const albumFilename = album.name.replace(/[:\/]/g, " ");
+		const albumsDir = `${vaultBasePath}/${this.settings.albumsPathLocation}/${bandFilename}`;
 	
 		this.app.vault.adapter.exists(albumsDir).then( (r) => {
 			return this.app.vault.adapter.mkdir(this.settings.albumsPathLocation.toString());
 		}).then((r) => {
-			return this.app.vault.adapter.mkdir(`${this.settings.albumsPathLocation}/${album.band}`);
+			return this.app.vault.adapter.mkdir(`${this.settings.albumsPathLocation}/${bandFilename}`);
 		}).then((r) => {
-			const noteFilename = `${this.settings.albumsPathLocation}/${album.band}/${album.name}.md`;
+			const noteFilename = `${this.settings.albumsPathLocation}/${album.band}/${albumFilename}.md`;
 			
 			let songsTable = ``;
 			for (const song of album.songs) {
@@ -210,13 +212,14 @@ ${songsTable}
 		const vaultBasePath = this.app.vault.adapter.basePath;
 	
 		const bandsDir = `${vaultBasePath}/${this.settings.bandsPathLocation}`;
-		const albumsDir = `${this.settings.albumsPathLocation}/${band.name}`;
+
+		const albumsDir = `${this.settings.albumsPathLocation}/${band.name.replace(/[:\/]/g," ")}`;
 
 		this.app.vault.adapter.exists(bandsDir).then( (r) => {
 			return this.app.vault.adapter.mkdir(this.settings.bandsPathLocation.toString());
 		}).then((r) => {
 
-			const noteFilename = `${this.settings.bandsPathLocation}/${band.name}.md`;
+			const noteFilename = `${this.settings.bandsPathLocation}/${band.name.replace(/[:\/]/g, " ")}.md`;
 
 			let tags = ``;
 			for (const tag of band.tags) {
@@ -229,7 +232,7 @@ ${songsTable}
 
 			let discogTable = ``;
 			for (const disc of band.discography) {
-				const albumDir = `${albumsDir}/${disc.discName}`
+				const albumDir = `${albumsDir}/${disc.discName.replace(/[:\/]/g, " ")}`
 				if ("Full-length" === disc.discType) {
 					discogTable += `|**[[${albumDir}\\|${disc.discName}]]**|${disc.discType}|${disc.discYear}|\n`;
 				} else {
